@@ -1,7 +1,5 @@
 (ns swirl.client
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :as a]
-            [taoensso.sente :as sente]
+  (:require [taoensso.sente :as sente]
             [reagent.core :as reagent]
             [devtools.core :as devtools]
             [swirl.peer :as peer]))

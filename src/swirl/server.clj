@@ -1,6 +1,5 @@
 (ns swirl.server
-  (:require [clojure.core.async :as a] 
-            [org.httpkit.server :as http]
+  (:require [org.httpkit.server :as http]
             [org.httpkit.client :as h]
             [polaris.core :as polaris]
             [ring.middleware.params :refer [wrap-params]]

@@ -51,7 +51,7 @@
              (swirl-out text shadow ws-send)]))
 
 (defn ws-send-impl
-  [{:keys [send-fn #?(:clj uid)]}]
+  [{:keys [send-fn uid]}]
   (fn [event]
     (send-fn #?(:clj uid) event)))
 
@@ -72,7 +72,9 @@
             (case ev-id
               :swirl/start (swirl-start message)
               :swirl/revolve (swirl-revolve message)
-              #?(:clj nil
-                 :cljs (when (:first-open? ev-data) (ws-send [:swirl/start]))))
+              nil)
+            #?(:cljs 
+               (when (:first-open? ev-data) 
+                 (ws-send [:swirl/start])))
             (recur)))))
     stop-fn))
