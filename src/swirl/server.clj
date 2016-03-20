@@ -1,6 +1,5 @@
 (ns swirl.server
   (:require [org.httpkit.server :as http]
-            [org.httpkit.client :as h]
             [polaris.core :as polaris]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -19,29 +18,12 @@
   [& _] 
   (str (java.util.UUID/randomUUID)))
 
-(defonce socket
-  (let [{:keys [ch-recv send-fn connected-uids ajax-post-fn ajax-get-or-ws-handshake-fn]}
+(defonce start-ws!
+  (let [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn] ws-ch :ch-recv}
         (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn random-uuid})]
-    {:ring-ajax-post ajax-post-fn
-     :ring-get-or-ws-handshake ajax-get-or-ws-handshake-fn
-     :ch-chsk ch-recv
-     :chsk-send! send-fn
-     :connected-uids connected-uids}))
-
-(defonce ws-server (atom nil))
-
-(defn stop-ws!
-  [] 
-  (when-let [stop-f @ws-server]
-    (stop-f)
-    (reset! ws-server nil)
-    (println "ws stopped")))
-
-(defn start-ws!
-  []
-  (stop-ws!)
-  (reset! ws-server (peer/vortex (:ch-chsk socket)))
-  (println "ws started"))
+    (defonce ring-ajax-post ajax-post-fn)
+    (defonce ring-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
+    (peer/lifecycle-fn ws-ch)))
 
 
 
@@ -49,8 +31,8 @@
 
 (def http-routes
   [["/" :app (fn [req] (resource-response "public/swirl.html"))]
-   ["/chsk" :socket {:GET (:ring-get-or-ws-handshake socket)
-                     :POST (:ring-ajax-post socket)}]])
+   ["/chsk" :socket {:GET ring-get-or-ws-handshake
+                     :POST ring-ajax-post}]])
 
 (def http-router
   (-> http-routes

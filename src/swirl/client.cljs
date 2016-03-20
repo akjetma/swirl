@@ -15,20 +15,12 @@
   [:div#app
    [editor text]])
 
-(defn websocket
-  []
-  (let [{:keys [ch-recv]}
-        (sente/make-channel-socket! 
-         "/chsk" {:type :auto :wrap-recv-evs? false})]
-    ch-recv))
-
 (defonce reload
-  (let [ws-channel (websocket)
-        ws-handler (atom nil)
+  (let [{ws-ch :ch-recv} (sente/make-channel-socket! 
+                          "/chsk" {:type :auto :wrap-recv-evs? false})
+        cycle-fn (peer/lifecycle-fn ws-ch)
         reload* (fn []
-                  (when-let [stop-ws @ws-handler] 
-                    (stop-ws))
-                  (reset! ws-handler (peer/vortex ws-channel))
+                  (cycle-fn)
                   (reagent/render-component
                    [app peer/text]
                    (.getElementById js/document "mount")))]
