@@ -10,8 +10,7 @@
             [ring.util.response :refer [resource-response]]
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
-            [swirl.debug :as debug]
-            [swirl.sync :as sync]))
+            [swirl.peer :as peer]))
 
 
 
@@ -30,15 +29,6 @@
      :chsk-send! send-fn
      :connected-uids connected-uids}))
 
-(def ws-routes 
-  {:swirl/start sync/start
-   :swirl/revolve sync/revolve})
-
-(defn ws-router
-  [{[ev-id _ :as event] :event :as message}]
-  (when-let [route (get ws-routes ev-id)]
-    (route message)))
-
 (defonce ws-server (atom nil))
 
 (defn stop-ws!
@@ -51,7 +41,7 @@
 (defn start-ws!
   []
   (stop-ws!)
-  (reset! ws-server (sente/start-chsk-router! (:ch-chsk socket) #'ws-router))
+  (reset! ws-server (peer/vortex (:ch-chsk socket)))
   (println "ws started"))
 
 
@@ -67,7 +57,6 @@
   (-> http-routes
       polaris/build-routes
       polaris/router
-      ;; (debug/wrap-debug :http-response)
       (wrap-resource "public")
       wrap-file-info
       wrap-keyword-params
