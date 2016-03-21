@@ -10,23 +10,23 @@
                  [binaryage/devtools "0.5.2"]
                  [reagent "0.5.1"]
                  [com.taoensso/sente "1.8.1"]
-                 [swirl "0.1.0-SNAPSHOT"]]
+                 [akjetma/dmp-clj "0.1.1"]]
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-1"]]
-  :source-paths ["src"]
+  :source-paths ["src" "../src"]
   :clean-targets ^{:protect false} ["resources/public/js/example.js"
                                     "resources/public/js/out"
                                     "target"]
   :cljsbuild {:builds 
               [{:id "dev"
-                :source-paths ["src"]
+                :source-paths ["src" "../src"]
                 :figwheel {:on-jsload "example.client/reload"}
                 :compiler {:main "example.client"
                            :asset-path "js/out"
                            :output-to "resources/public/js/example.js"
                            :output-dir "resources/public/js/out"}}
                {:id "min"
-                :source-paths ["src"]
+                :source-paths ["src" "../src"]
                 :compiler {:main "example.client"
                            :output-to "resources/public/js/example.js" 
                            :optimizations :advanced}}]}

@@ -9,7 +9,7 @@
 (def interval-ms
   ;; Duration to wait to begin processing a patch after receiving it
   #?(:clj 0
-     :cljs 500))
+     :cljs 100))
 
 (defonce shadow*
   ;; A shadow represents a peer's knowledge of its connected peer's
@@ -51,7 +51,8 @@
   [text shadow {[_ patch] :event :keys [uid ws-send]}]
   (go 
     (a/<! (a/timeout interval-ms))
-    (swirl-in text shadow patch)
+    (when-not (empty? patch)
+      (swirl-in text shadow patch))
     (swirl-out text shadow ws-send)))
 
 (defn ws-send-impl
@@ -74,46 +75,34 @@
               shadow))
      :cljs shadow*))
 
-(defn vortex
-  ;; vt-ch (vortex channel) receives only websocket messages with
-  ;; the :swirl/revolve event id (data is just a patch string).
-  ;; This loop transforms/normalizes raw websocket messages and 
-  ;; initiates half of a sync loop.
-  [vt-ch]
-  (println "starting vortex")
-  (let [stop-ch (a/chan)
-        stop-fn #(a/put! stop-ch :stop)]
-    (go-loop []
-      (when-let [[v p] (a/alts! [stop-ch vt-ch])]
-        (if (= p vt-ch)
-          (let [shadow (shadow-impl v)
-                ws-send (ws-send-impl v)
-                message (assoc v :ws-send ws-send)]
-            (revolve text shadow message)
-            (recur))
-          (println "stopping vortex"))))
-    stop-fn))
+(defn vortex-fn
+  [message]
+  (let [shadow (shadow-impl message)
+        ws-send (ws-send-impl message)
+        message (assoc message :ws-send ws-send)]
+    (revolve text shadow message)))
 
-(defn socket
-  ;; This is an example implementation of how you might configure
-  ;; a websocket router to interact with the vortex. The user of 
-  ;; this library is expected to put appropriate messages onto the
-  ;; vortex channel and make the initial 'swirl-out' call from 
-  ;; the client.
-  [ws-ch vt-ch]
-  (println "starting socket")
+(defn router-fn
+  [vt-ch {[ev-id ev-data] :event :as message}]
+  (cond
+    (= ev-id :swirl/revolve) (a/put! vt-ch message)
+    #?@(:clj  [(= ev-id :chsk/uidport-close) (swap! shadow* dissoc (:uid message))]
+        :cljs [(:first-open? ev-data) (swirl-out text shadow* (:send-fn message))])))
+
+(defn stoppable
+  ;; Starts a go-loop whose body is a function that consumes
+  ;; the value from one input channel. Returns a function that
+  ;; exits the loop when called.
+  [f in-ch process-name]
+  (println "starting " process-name)
   (let [stop-ch (a/chan)
         stop-fn #(a/put! stop-ch :stop)]
     (go-loop []
-      (when-let [[v p] (a/alts! [stop-ch ws-ch])]
-        (if (= p ws-ch)
-          (let [{[ev-id ev-data] :event} v]
-            (when (= ev-id :swirl/revolve) 
-              (a/put! vt-ch v))
-            #?(:cljs (when (:first-open? ev-data) 
-                       (swirl-out text shadow* (:send-fn v))))
-            (recur))
-          (println "stopping socket"))))
+      (when-let [[msg chan] (a/alts! [stop-ch in-ch])]
+        (if (= chan stop-ch)
+          (println "stopping " process-name)
+          (do (f msg)
+              (recur)))))
     stop-fn))
 
 (defn lifecycle-fn
@@ -128,5 +117,7 @@
     (fn restart []
       (@ws-handler)
       (@vt-handler)
-      (reset! ws-handler (socket ws-ch vt-ch))
-      (reset! vt-handler (vortex vt-ch)))))
+      (reset! ws-handler 
+              (stoppable (partial router-fn vt-ch) ws-ch "ws router"))
+      (reset! vt-handler 
+              (stoppable vortex-fn vt-ch "peer vortex")))))
