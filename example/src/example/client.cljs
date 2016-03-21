@@ -1,4 +1,4 @@
-(ns swirl.client
+(ns example.client
   (:require [taoensso.sente :as sente]
             [reagent.core :as reagent]
             [devtools.core :as devtools]

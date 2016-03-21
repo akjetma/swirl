@@ -1,4 +1,4 @@
-(ns swirl.server
+(ns example.server
   (:require [org.httpkit.server :as http]
             [polaris.core :as polaris]
             [ring.middleware.params :refer [wrap-params]]
@@ -30,7 +30,7 @@
 ;; -------------------------------------------------- http -----------
 
 (def http-routes
-  [["/" :app (fn [req] (resource-response "public/swirl.html"))]
+  [["/" :app (fn [req] (resource-response "public/example.html"))]
    ["/chsk" :socket {:GET ring-get-or-ws-handshake
                      :POST ring-ajax-post}]])
 
