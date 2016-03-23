@@ -14,15 +14,15 @@
   [text]
   [:div#app
    [editor text]])
-
+ 
 (defonce reload
-  (let [{ws-ch :ch-recv} (sente/make-channel-socket! 
-                          "/chsk" {:type :auto :wrap-recv-evs? false})
-        cycle-fn (peer/lifecycle-fn ws-ch)
+  (let [{:keys [ch-recv]} (sente/make-channel-socket! 
+                           "/chsk" {:type :auto :wrap-recv-evs? false})
+        {:keys [start! text]} (peer/system ch-recv)
         reload* (fn []
-                  (cycle-fn)
+                  (start!)
                   (reagent/render-component
-                   [app peer/text]
+                   [app text]
                    (.getElementById js/document "mount")))]
     (enable-console-print!)
     (devtools/install!)

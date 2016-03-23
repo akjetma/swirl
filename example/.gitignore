@@ -10,3 +10,5 @@ pom.xml.asc
 .hgignore
 .hg/
 *.log
+/resources/public/js/out
+/resources/public/js/example.js
