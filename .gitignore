@@ -10,4 +10,5 @@ pom.xml.asc
 .hgignore
 .hg/
 *.log
-**.org
+/resources/public/js/out
+/resources/public/js/swirl.js

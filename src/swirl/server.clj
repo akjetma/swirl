@@ -1,4 +1,4 @@
-(ns example.server
+(ns swirl.server
   (:require [org.httpkit.server :as http]
             [polaris.core :as polaris]
             [ring.middleware.params :refer [wrap-params]]
@@ -18,19 +18,19 @@
   [& _] 
   (str (java.util.UUID/randomUUID)))
 
-(defonce peer-sys
+(defonce chsk-recv
   (let [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn ch-recv]}
         (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn random-uuid})]
     (defonce ring-ajax-post ajax-post-fn)
     (defonce ring-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
-    (peer/system ch-recv)))
+    ch-recv))
 
-(defonce start-peer! (:start! peer-sys))
+(defonce peer-system (atom nil))
 
 ;; -------------------------------------------------- http -----------
 
 (def http-routes
-  [["/" :app (fn [req] (resource-response "public/example.html"))]
+  [["/" :app (fn [req] (resource-response "public/swirl.html"))]
    ["/chsk" :socket {:GET ring-get-or-ws-handshake
                      :POST ring-ajax-post}]])
 
@@ -64,7 +64,11 @@
 ;; -------------------------------------------------------------------
 
 (defn start! [server-port]
-  (start-peer!)
+  (if-let [{:keys [stop!]} @peer-system]
+    (stop!)
+    (let [{:keys [start!] :as ps} (peer/system chsk-recv)]
+      (reset! peer-system ps)
+      (start!)))
   (start-http! server-port))
 
 (defn -main  

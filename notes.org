@@ -1,2 +1,0 @@
-* Interfaces
-I want to have a basic interface that is inflexible but does away with boilerplate, and an advanced interface that is more configurable
