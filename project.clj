@@ -18,8 +18,9 @@
             [lein-figwheel "0.5.0-1"]]
   
   :clean-targets ^{:protect false} ["resources/public/js/swirl.js"
-                                    "resources/public/js/example.js"
                                     "resources/public/js/out"
+                                    "resources/public/js/sandbox.js"
+                                    "resources/public/js/out_sb"
                                     "target"]
 
   :source-paths ["src"]
@@ -32,13 +33,21 @@
                                          :compiler {:main "swirl.client"
                                                     :asset-path "js/out"
                                                     :output-dir "resources/public/js/out"
-                                                    :optimizations :none}}}}}
-
+                                                    :optimizations :none}}
+                                :sandbox {:figwheel {:on-jsload "sandbox.core/reload"}
+                                          :compiler {:main "sandbox.core"
+                                                     :asset-path "js/out_sb"
+                                                     :output-dir "resources/public/js/out_sb"
+                                                     :optimizations :none}}}}}
              :prod {:cljsbuild {:builds 
                                 {:client {:compiler {:optimizations :advanced
-                                                     :pretty-print false}}}}}}
-  
+                                                     :pretty-print false}}
+                                 :sandbox {:compiler {:optimizations :simple
+                                                      :pretty-print false}}}}}}
   :cljsbuild {:builds 
               {:client {:source-paths ["src"]
                         :compiler 
-                        {:output-to "resources/public/js/swirl.js"}}}})
+                        {:output-to "resources/public/js/swirl.js"}}
+               :sandbox {:source-paths ["src-sandbox"]
+                         :compiler
+                         {:output-to "resources/public/js/sandbox.js"}}}})

@@ -99,10 +99,20 @@
           (recur))))
     stop-fn))
 
-(defn system
+(defn watch-text*
+  [text* text-ch]
+  (add-watch 
+   text* :put-text
+   (fn put-text [_ _ _ text]
+     (a/put! text-ch text)))
+  (fn stop-watch
+    []
+    (remove-watch text* :put-text)))
+
+(defn system 
   [chsk-recv]
   (let [text* (atom "")
-        
+        text-ch (a/chan (a/sliding-buffer 1))
         app-context
         {:peer-ev-id :swirl/rotate
          :freq 200
@@ -111,10 +121,18 @@
              :cljs [:shadow*  (atom "")])}
         
         system* (atom (constantly nil))
-        system-stop! (fn [] (@system*))
+        system-stop! (fn [] 
+                       (@system*))
         system-start! (fn []
                         (system-stop!)
-                        (reset! system* (router-loop app-context chsk-recv)))]
+                        (let [stop-router (router-loop app-context chsk-recv)
+                              stop-watch #?(:clj  (constantly nil) 
+                                            :cljs (watch-text* text* text-ch))]
+                          (reset! system* 
+                                  (fn []
+                                    (stop-router)
+                                    (stop-watch)))))]
     {:text* text*
+     :text-ch text-ch
      :start! system-start!
      :stop! system-stop!}))
