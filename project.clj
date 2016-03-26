@@ -5,6 +5,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
                  [org.clojure/core.async "0.2.374"]
+                 [cljsjs/codemirror "5.11.0-1"]
                  [http-kit "2.1.18"]
                  [polaris "0.0.15"]
                  [ring "1.4.0"]

@@ -41,12 +41,10 @@
    "eval"])
 
 (defn textarea
-  [{:keys [text*]}]
+  [{:keys [textarea-id]}]
   [:textarea
-   {:value @text*
-    :on-change 
-    (fn [e]
-      (reset! text* (.. e -target -value)))}])
+   {:id textarea-id
+    :autocomplete false}])
 
 (defn log
   [{:keys [history*]}]
@@ -57,7 +55,7 @@
   [:div
    [autobuild-toggle context]
    [eval-button context]])
-
+ 
 (defn app
   [context]
   [:div#app
@@ -87,9 +85,11 @@
 (defn component
   [text* history* mount-pt]
   (let [text-ch (a/chan)
+        textarea-id "editor-mount"
         context {:text* text*
                  :history* history*
                  :text-ch text-ch
+                 :textarea-id textarea-id
                  :autobuild (reagent/atom false)
                  :mount-pt mount-pt}
         stop-fn* (atom (constantly nil))
@@ -98,5 +98,6 @@
                  (stop!)
                  (reset! stop-fn* (start context)))]
     {:text-ch text-ch
+     :textarea-id textarea-id
      :start-ui! start!
      :stop-ui! stop!}))

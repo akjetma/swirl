@@ -5,15 +5,15 @@
 
 (defn start
   [{:keys [result-in history*]}]
-  (let [stop-ch (a/chan)
-        stop-fn (fn []
-                  (a/put! stop-ch :stop))]
+  (let [stop-ch (a/chan)]
     (go-loop []
       (when-let [[msg port] (a/alts! [result-in stop-ch])]
         (when (= port result-in)
           (reset! history* (str msg))
           (recur))))
-    stop-fn))
+    (fn stop-log
+      []
+      (a/put! stop-ch :stop))))
 
 (defn component
   [result-in history*]
@@ -23,8 +23,7 @@
         stop! (fn [] (@stop-fn*))
         start! (fn []
                  (stop!)
-                 (reset! stop-fn*
-                         (start context)))]
+                 (reset! stop-fn* (start context)))]
     
     {:stop-log! stop!
      :start-log! start!}))

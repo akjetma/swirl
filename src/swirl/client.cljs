@@ -2,6 +2,7 @@
   (:require [taoensso.sente :as sente]
             [reagent.core :as reagent]
             [devtools.core :as devtools]
+            [swirl.editor :as editor]
             [swirl.peer :as peer]
             [swirl.repl :as repl]
             [swirl.log :as log]
@@ -23,14 +24,16 @@
         mount (ui-mount)
         history* (reagent/atom nil)
         {:keys [start-peer! text*]} (peer/component ch-recv)
-        {:keys [start-ui! text-ch]} (ui/component text* history* mount)
+        {:keys [start-ui! text-ch textarea-id]} (ui/component text* history* mount)
         {:keys [start-repl! result-ch]} (repl/component text-ch sandbox)
         {:keys [start-log!]} (log/component result-ch history*)
+        {:keys [start-editor!]} (editor/component text* textarea-id)
         reload* (fn []
                   (start-peer!)
                   (start-repl!)
                   (start-log!)
-                  (start-ui!))]
+                  (start-ui!)
+                  (start-editor!))]
     (enable-console-print!)
     (devtools/install!)
     (reload*)
