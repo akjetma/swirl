@@ -18,14 +18,15 @@
   [& _] 
   (str (java.util.UUID/randomUUID)))
 
-(defonce chsk-recv
+(defonce ws-ch
   (let [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn ch-recv]}
         (sente/make-channel-socket! sente-web-server-adapter {:user-id-fn random-uuid})]
     (defonce ring-ajax-post ajax-post-fn)
     (defonce ring-get-or-ws-handshake ajax-get-or-ws-handshake-fn)
     ch-recv))
 
-(defonce peer-system (atom nil))
+(defonce peer
+  (peer/component ws-ch))
 
 ;; -------------------------------------------------- http -----------
 
@@ -64,11 +65,7 @@
 ;; -------------------------------------------------------------------
 
 (defn start! [server-port]
-  (if-let [{:keys [stop!]} @peer-system]
-    (stop!)
-    (let [{:keys [start!] :as ps} (peer/system chsk-recv)]
-      (reset! peer-system ps)
-      (start!)))
+  ((:start-peer! peer))
   (start-http! server-port))
 
 (defn -main  

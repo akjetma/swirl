@@ -1,13 +1,11 @@
 (ns swirl.peer
   #?@(:cljs [(:refer-clojure :exclude [atom])
-             (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-             (:require [reagent.core :refer [atom]]
-                       [dmp-clj.core :as dmp]
-                       [swirl.component :as component]
-                       [cljs.core.async :as a])]
-      :clj [(:require [dmp-clj.core :as dmp]
-                      [clojure.string :refer [split]]
-                      [clojure.core.async :refer [go go-loop] :as a])]))
+             (:require-macros [cljs.core.async.macros :refer [go go-loop]])])
+  (:require [dmp-clj.core :as dmp]
+            [#?@(:clj  [clojure.core.async :refer [go go-loop]] 
+                 :cljs [cljs.core.async]) 
+             :as a]
+            #?(:cljs [reagent.core :refer [atom]])))
  
 (defn apply-patch!
   [{:keys [text* shadow*]} patch]
@@ -36,11 +34,10 @@
       (swap! shadows* assoc uid shadow*)
       shadow*)))
 
-(defn peer-context
-  [{:keys [peer-ev-id text* #?(:cljs shadow*)]
-    :as app-context} 
+(defn local-state
+  [{:keys [peer-ev-id text* #?(:cljs shadow*)] :as context} 
    {:keys [uid send-fn]}]
-  (let [#?@(:clj [shadow* (get-server-shadow* app-context uid)])
+  (let [#?@(:clj [shadow* (get-server-shadow* context uid)])
         reply! (fn [patch]
                  (send-fn 
                   #?(:clj uid) 
@@ -50,9 +47,9 @@
      :reply! reply!}))
 
 (defn handle-rotate
-  [app-context {[_ patch] :event :as message}]
+  [context {[_ patch] :event :as message}]
   (rotate!
-   (peer-context app-context message)
+   (local-state context message)
    patch))
 
 (defn handle-close
@@ -60,16 +57,14 @@
   (swap! shadows* dissoc uid))
 
 (defn handle-open
-  [app-context message]
-  (let [{:keys [reply!]} (peer-context app-context message)]
+  [context message]
+  (let [{:keys [reply!]} (local-state context message)]
     (reply! "")))
 
-(defn swirl-router
-  [{:keys [peer-ev-id] :as app-context}]
-  (fn 
-    [{[ev-id {:keys [first-open?] 
-              :as ev-data}] :event 
-      :as message}]
+(defn router-fn
+  [{:keys [peer-ev-id] :as context}]
+  (fn route-msg
+    [{[ev-id ev-data] :event :as message}]
     (when-let [handler
                (cond
                  (= ev-id peer-ev-id) handle-rotate
@@ -78,61 +73,62 @@
                      [(= ev-id :chsk/uidport-close) handle-close]
                
                      :cljs
-                     [first-open? handle-open]))]
-      (handler app-context message))))
+                     [(:first-open? ev-data) handle-open]))]
+      (handler context message))))
 
-(defn router-loop
-  [{:keys [peer-ev-id freq]
-    :as app-context} 
-   chsk-recv]
-  (let [route (swirl-router app-context)
-        stop-ch (a/chan)
-        stop-fn #(a/put! stop-ch :stop)]
+(defn start-router
+  [{:keys [peer-ev-id freq chsk-recv] :as context}]
+  (let [route-msg (router-fn context)
+        stop-ch (a/chan)]
     (go-loop []
-      (when-let [[{[ev-id] :event :as message} chan] 
-                 (a/alts! [stop-ch chsk-recv])]
+      (when-let [[message chan] (a/alts! [stop-ch chsk-recv])]
         (when (= chan chsk-recv)
           #?(:cljs 
-             (when (= ev-id peer-ev-id)
+             (when (= (first (:event message)) peer-ev-id)
                (a/<! (a/timeout freq))))
-          (route message)
+          (route-msg message)
           (recur))))
-    stop-fn))
+    (fn stop-router 
+      [] 
+      (a/put! stop-ch :stop))))
 
-(defn watch-text*
-  [text* text-ch]
+(defn start-watch
+  [{:keys [text* text-ch]}]
   (add-watch 
    text* :put-text
    (fn put-text [_ _ _ text]
      (a/put! text-ch text)))
-  (fn stop-watch
-    []
+  (fn stop-watch []
     (remove-watch text* :put-text)))
 
-(defn system 
+(defn start
+  [context]
+  (let [stop-watch (start-watch context)
+        stop-router (start-router context)]
+    (fn stop
+      []
+      (stop-watch)
+      (stop-router))))
+
+(defn component
   [chsk-recv]
   (let [text* (atom "")
-        text-ch (a/chan (a/sliding-buffer 1))
-        app-context
+        text-ch (a/chan)
+        context
         {:peer-ev-id :swirl/rotate
+         :text-ch text-ch
+         :chsk-recv chsk-recv
          :freq 200
          :text* text*
          #?@(:clj  [:shadows* (atom {})]
-             :cljs [:shadow*  (atom "")])}
+             :cljs [:shadow*  (atom "")])}        
         
-        system* (atom (constantly nil))
-        system-stop! (fn [] 
-                       (@system*))
-        system-start! (fn []
-                        (system-stop!)
-                        (let [stop-router (router-loop app-context chsk-recv)
-                              stop-watch #?(:clj  (constantly nil) 
-                                            :cljs (watch-text* text* text-ch))]
-                          (reset! system* 
-                                  (fn []
-                                    (stop-router)
-                                    (stop-watch)))))]
+        stop-fn* (atom (constantly nil))
+        stop! (fn [] (@stop-fn*))
+        start! (fn []
+                 (stop!)
+                 (reset! stop-fn* (start context)))]
     {:text* text*
      :text-ch text-ch
-     :start! system-start!
-     :stop! system-stop!}))
+     :start-peer! start!
+     :stop-peer! stop!}))

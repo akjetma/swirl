@@ -3,26 +3,28 @@
             [reagent.core :as reagent]
             [devtools.core :as devtools]
             [swirl.peer :as peer]
-            [swirl.component :as component]
-            [swirl.cross :as cross]
-            [swirl.log :as log]))
+            [swirl.repl :as repl]
+            [swirl.log :as log]
+            [swirl.ui :as ui]))
 
-(defn app
-  [text* history*]
-  [:div#app
-   [component/textarea text*]
-   [log/component history*]])
- 
+(defn sandbox-window
+  []
+  (.-contentWindow 
+   (.getElementById js/document "sandbox")))
+
 (defonce reload
   (let [{:keys [ch-recv]} (sente/make-channel-socket! 
                            "/chsk" {:type :auto :wrap-recv-evs? false})
-        {:keys [start! text* text-ch]} (peer/system ch-recv)
-        {:keys [result-ch stop-comms]} (cross/start-comms text-ch)
-        {:keys [history* stop-recorder]} (log/start-recorder result-ch)
+        sandbox (sandbox-window)
+        {:keys [start-peer! text* text-ch]} (peer/component ch-recv)
+        {:keys [start-repl! result-ch]} (repl/component text-ch sandbox)
+        {:keys [start-log! history*]} (log/component result-ch)
         reload* (fn []
-                  (start!)
+                  (start-peer!)
+                  (start-repl!)
+                  (start-log!)
                   (reagent/render-component
-                   [app text* history*]
+                   [ui/app text* history*]
                    (.getElementById js/document "mount")))]
     (enable-console-print!)
     (devtools/install!)

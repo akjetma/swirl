@@ -3,20 +3,30 @@
   (:require [cljs.core.async :as a]
             [reagent.core :as reagent]))
 
-(defn component
-  [history*]
-  [:div @history*])
-
-(defn start-recorder
-  [result-in]
-  (let [history* (reagent/atom nil)
-        stop-ch (a/chan)
-        stop-recorder (fn []
-                        (a/put! stop-ch :stop))]
+(defn start
+  [{:keys [result-in history*]}]
+  (let [stop-ch (a/chan)
+        stop-fn (fn []
+                  (a/put! stop-ch :stop))]
     (go-loop []
       (when-let [[msg port] (a/alts! [result-in stop-ch])]
         (when (= port result-in)
           (reset! history* (str msg))
           (recur))))
+    stop-fn))
+
+(defn component
+  [result-in]
+  (let [history* (reagent/atom nil)
+        context {:history* history*
+                 :result-in result-in}
+        stop-fn* (atom (constantly nil))
+        stop! (fn [] (@stop-fn*))
+        start! (fn []
+                 (stop!)
+                 (reset! stop-fn*
+                         (start context)))]
+    
     {:history* history*
-     :stop-recorder stop-recorder}))
+     :stop-log! stop!
+     :start-log! start!}))
