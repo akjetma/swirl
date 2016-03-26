@@ -34,11 +34,11 @@
       :on-change #(toggle-autobuild context)}]
     "autobuild"])
 
-(defn build-button
+(defn eval-button
   [{:keys [text-ch text*]}]
   [:button
    {:on-click #(trigger-eval text-ch @text*)}
-   "build"])
+   "eval"])
 
 (defn textarea
   [{:keys [text*]}]
@@ -56,7 +56,7 @@
   [context]
   [:div
    [autobuild-toggle context]
-   [build-button context]])
+   [eval-button context]])
 
 (defn app
   [context]

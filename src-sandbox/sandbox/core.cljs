@@ -21,7 +21,7 @@
   (let [result-ch (a/chan)]
     (eval-str
      (fn [{:keys [value error]}]
-       (a/put! result-ch (or value "fuck")))
+       (a/put! result-ch (or value (.-stack error))))
      input)
     result-ch))
 
