@@ -1,0 +1,77 @@
+html, body, #mount, #app-container, #app, #editor, .CodeMirror {
+    height: 100%;
+}
+
+button {
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+button:focus {
+    outline: none;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+    font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+}
+
+#sandbox {
+    pointer-events: none;
+    flex-grow: 1;
+}
+
+#app-container {
+    padding-left: 10px;
+    background-color: rgb(83,127,126);
+    cursor: col-resize;
+}
+
+#app {
+    cursor: default;
+}
+
+#log {
+    margin: 5px;
+    color: #F77669;
+}
+
+#controls {
+    z-index: 3;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    pointer-events: none;
+}
+
+#controls button {
+    pointer-events: auto;
+    background-color: #DECB6B;
+    color: #263238;
+    padding: 5px 7px;
+    border-radius: 5px;
+}
+
+#controls button > span {
+    margin: 0 2px;
+}
+
+.control-group {
+    display: flex;
+}
+
+.control-group > * {
+    margin: 0 5px;
+}
+
+.CodeMirror {
+    font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+}
+

@@ -1,6 +1,11 @@
 (ns swirl.ui
   (:require [cljs.core.async :as a]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            [swirl.mouse :as mouse]))
+
+
+
+;; ------------------------------------------------ Behaviors
 
 (defn trigger-eval
   [text-ch text]
@@ -25,43 +30,67 @@
     (stop-watch context)
     (start-watch context)))
 
+(defn resize-handler
+  [{:keys [width]}]
+  (let [start-width @width]
+    (fn resize
+      [[x-offset _]]
+      (println x-offset)
+      (reset! width (- start-width x-offset)))))
+
+
+
+;; ------------------------------------------------ Reagent Components
+
 (defn autobuild-toggle
   [{:keys [autobuild] :as context}]
-  [:label
-    [:input
-     {:type "checkbox"
-      :checked @autobuild
-      :on-change #(toggle-autobuild context)}]
-    "autobuild"])
+  [:button#autobuild-toggle
+   {:on-click #(toggle-autobuild context)}
+   (if @autobuild "✓" "❑")
+   "autobuild"])
 
 (defn eval-button
   [{:keys [text-ch text*]}]
-  [:button
+  [:button#eval-btn
    {:on-click #(trigger-eval text-ch @text*)}
    "eval"])
 
 (defn textarea
-  [{:keys [textarea-id]}]
+  [{:keys [textarea-id text*]}]
   [:textarea
    {:id textarea-id
+    :value @text*
     :autocomplete false}])
 
 (defn log
   [{:keys [history*]}]
-  [:div @history*])
+  [:div#log @history*])
 
 (defn controls
   [context]
-  [:div
+  [:div.control-group
    [autobuild-toggle context]
    [eval-button context]])
- 
+
 (defn app
-  [context]
-  [:div#app
-   [textarea context]
-   [controls context]
-   [log context]])
+  [{:keys [width] :as context}]
+  [:div#app-container 
+   {:style {:width @width}
+    :on-mouse-down (fn [e] 
+                     (mouse/drag-start
+                      (resize-handler context)
+                      e))}
+   [:div#app
+    {:on-mouse-down (fn [e] (.stopPropagation e))}
+    [:div#editor
+     [textarea context]]
+    [:div#controls
+     [log context]
+     [controls context]]]])
+
+
+
+;; ------------------------------------------------ Lifecycle
 
 (defn start-render
   [{:keys [mount-pt] :as context}]
@@ -91,6 +120,7 @@
                  :text-ch text-ch
                  :textarea-id textarea-id
                  :autobuild (reagent/atom false)
+                 :width (reagent/atom 500)
                  :mount-pt mount-pt}
         stop-fn* (atom (constantly nil))
         stop! (fn [] (@stop-fn*))

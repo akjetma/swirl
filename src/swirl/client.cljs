@@ -29,10 +29,10 @@
         {:keys [start-log!]} (log/component result-ch history*)
         {:keys [start-editor!]} (editor/component text* textarea-id)
         reload* (fn []
-                  (start-peer!)
-                  (start-repl!)
-                  (start-log!)
                   (start-ui!)
+                  (start-peer!)
+                  (start-log!)
+                  (start-repl!)
                   (start-editor!))]
     (enable-console-print!)
     (devtools/install!)

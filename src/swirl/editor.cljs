@@ -40,7 +40,10 @@
   [context]
   (.fromTextArea 
    js/CodeMirror (textarea context)
-   #js {:mode "clojure"}))
+   #js {:mode "clojure"
+        :theme "material"
+        :lineNumbers true
+        :lineWrapping true}))
  
 (defn start
   [context]
