@@ -12,20 +12,25 @@
   (.-contentWindow 
    (.getElementById js/document "sandbox")))
 
+(defn ui-mount
+  []
+  (.getElementById js/document "mount"))
+
 (defonce reload
   (let [{:keys [ch-recv]} (sente/make-channel-socket! 
                            "/chsk" {:type :auto :wrap-recv-evs? false})
         sandbox (sandbox-window)
-        {:keys [start-peer! text* text-ch]} (peer/component ch-recv)
+        mount (ui-mount)
+        history* (reagent/atom nil)
+        {:keys [start-peer! text*]} (peer/component ch-recv)
+        {:keys [start-ui! text-ch]} (ui/component text* history* mount)
         {:keys [start-repl! result-ch]} (repl/component text-ch sandbox)
-        {:keys [start-log! history*]} (log/component result-ch)
+        {:keys [start-log!]} (log/component result-ch history*)
         reload* (fn []
                   (start-peer!)
                   (start-repl!)
                   (start-log!)
-                  (reagent/render-component
-                   [ui/app text* history*]
-                   (.getElementById js/document "mount")))]
+                  (start-ui!))]
     (enable-console-print!)
     (devtools/install!)
     (reload*)

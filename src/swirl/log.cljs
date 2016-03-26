@@ -16,9 +16,8 @@
     stop-fn))
 
 (defn component
-  [result-in]
-  (let [history* (reagent/atom nil)
-        context {:history* history*
+  [result-in history*]
+  (let [context {:history* history*
                  :result-in result-in}
         stop-fn* (atom (constantly nil))
         stop! (fn [] (@stop-fn*))
@@ -27,6 +26,5 @@
                  (reset! stop-fn*
                          (start context)))]
     
-    {:history* history*
-     :stop-log! stop!
+    {:stop-log! stop!
      :start-log! start!}))

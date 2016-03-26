@@ -92,31 +92,18 @@
       [] 
       (a/put! stop-ch :stop))))
 
-(defn start-watch
-  [{:keys [text* text-ch]}]
-  (add-watch 
-   text* :put-text
-   (fn put-text [_ _ _ text]
-     (a/put! text-ch text)))
-  (fn stop-watch []
-    (remove-watch text* :put-text)))
-
 (defn start
   [context]
-  (let [stop-watch (start-watch context)
-        stop-router (start-router context)]
+  (let [stop-router (start-router context)]
     (fn stop
       []
-      (stop-watch)
       (stop-router))))
 
 (defn component
   [chsk-recv]
   (let [text* (atom "")
-        text-ch (a/chan)
         context
         {:peer-ev-id :swirl/rotate
-         :text-ch text-ch
          :chsk-recv chsk-recv
          :freq 200
          :text* text*
@@ -129,6 +116,5 @@
                  (stop!)
                  (reset! stop-fn* (start context)))]
     {:text* text*
-     :text-ch text-ch
      :start-peer! start!
      :stop-peer! stop!}))
