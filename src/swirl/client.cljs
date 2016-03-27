@@ -18,23 +18,24 @@
   (.getElementById js/document "mount"))
 
 (defonce reload
-  (let [{:keys [ch-recv]} (sente/make-channel-socket! 
-                           "/chsk" {:type :auto :wrap-recv-evs? false})
-        sandbox (sandbox-window)
-        mount (ui-mount)
-        history* (reagent/atom nil)
-        {:keys [start-peer! text*]} (peer/component ch-recv)
-        {:keys [start-ui! text-ch textarea-id]} (ui/component text* history* mount)
-        {:keys [start-repl! result-ch]} (repl/component text-ch sandbox)
-        {:keys [start-log!]} (log/component result-ch history*)
-        {:keys [start-editor!]} (editor/component text* textarea-id)
-        reload* (fn []
-                  (start-ui!)
-                  (start-peer!)
-                  (start-log!)
-                  (start-repl!)
-                  (start-editor!))]
+  (do
     (enable-console-print!)
     (devtools/install!)
-    (reload*)
-    reload*))
+    (let [{:keys [ch-recv]} (sente/make-channel-socket! 
+                             "/chsk" {:type :auto :wrap-recv-evs? false})
+          sandbox (sandbox-window)
+          mount (ui-mount)
+          history* (reagent/atom nil)
+          {:keys [start-peer! text*]} (peer/component ch-recv)
+          {:keys [start-ui! text-ch textarea-id]} (ui/component text* history* mount)
+          {:keys [start-repl! result-ch]} (repl/component text-ch sandbox)
+          {:keys [start-log!]} (log/component result-ch history*)
+          {:keys [start-editor!]} (editor/component text* textarea-id)
+          reload* (fn []
+                    (start-ui!)
+                    (start-peer!)
+                    (start-log!)
+                    (start-repl!)
+                    (start-editor!))]
+      (reload*)
+      reload*)))
