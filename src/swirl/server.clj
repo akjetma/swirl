@@ -1,4 +1,5 @@
 (ns swirl.server
+  (:gen-class)
   (:require [org.httpkit.server :as http]
             [polaris.core :as polaris]
             [ring.middleware.params :refer [wrap-params]]
