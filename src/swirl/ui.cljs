@@ -12,48 +12,62 @@
   (a/put! text-ch text))
 
 (defn stop-watch
-  [{:keys [text* autobuild]}]
+  [{:keys [text* control-state]}]
   (remove-watch text* :put-text)
-  (reset! autobuild false))
+  (swap! control-state assoc :autobuild false))
 
 (defn start-watch
-  [{:keys [text* text-ch autobuild]}]
+  [{:keys [text* text-ch control-state]}]
   (add-watch 
    text* :put-text
    (fn put-text [_ _ _ text]
      (trigger-eval text-ch text)))
-  (reset! autobuild true))
+  (swap! control-state assoc :autobuild true))
 
 (defn toggle-autobuild
-  [{:keys [autobuild] :as context}]
-  (if @autobuild
+  [{:keys [control-state] :as context}]
+  (if (:autobuild @control-state)
     (stop-watch context)
     (start-watch context)))
 
 (defn resize-handler
-  [{:keys [width]}]
-  (let [start-width @width]
+  [{:keys [control-state]}]
+  (let [start-width (:width @control-state)]
     (fn resize
       [[x-offset _]]
       (println x-offset)
-      (reset! width (- start-width x-offset)))))
+      (swap! control-state assoc :width (- start-width x-offset)))))
 
 
 
 ;; ------------------------------------------------ Reagent Components
 
-(defn autobuild-toggle
-  [{:keys [autobuild] :as context}]
-  [:button#autobuild-toggle
-   {:on-click #(toggle-autobuild context)}   
-   [:span "autobuild:"]
-   (if @autobuild
+(defn toggle-btn
+  [label state toggle-fn]
+  [:button.toggle
+   {:on-click toggle-fn}
+   [:span.label (str label ":")]
+   (if state
      [:span.on "on"]
      [:span.off "off"])])
 
+(defn autobuild-toggle
+  [{:keys [control-state] :as context}]
+  [toggle-btn
+   "autobuild"
+   (:autobuild @control-state)
+   #(toggle-autobuild context)])
+
+(defn output-toggle
+  [{:keys [control-state]}]
+  [toggle-btn
+   "show output"
+   (:show-output @control-state)
+   #(swap! control-state update :show-output not)])
+
 (defn eval-button
   [{:keys [text-ch text*]}]
-  [:button#eval-btn
+  [:button
    {:on-click #(trigger-eval text-ch @text*)}
    "eval"])
 
@@ -65,26 +79,29 @@
     :autocomplete false}])
 
 (defn log
-  [{:keys [history*]}]
-  [:div#log @history*])
+  [{:keys [history* control-state]}]
+  [:div#log 
+   (when (:show-output @control-state)
+     @history*)])
 
 (defn controls
   [context]
   [:div.control-group
+   [output-toggle context]
    [autobuild-toggle context]
    [eval-button context]])
 
 (defn app
-  [{:keys [width] :as context}]
-  [:div#app-container 
-   {:style {:width @width}
+  [{:keys [control-state] :as context}]
+  [:div#app-container.full-height
+   {:style {:width (:width @control-state)}
     :on-mouse-down (fn [e] 
                      (mouse/drag-start
                       (resize-handler context)
                       e))}
-   [:div#app
+   [:div#app.full-height
     {:on-mouse-down (fn [e] (.stopPropagation e))}
-    [:div#editor
+    [:div#editor.full-height
      [textarea context]]
     [:div#controls
      [log context]
@@ -121,8 +138,9 @@
                  :history* history*
                  :text-ch text-ch
                  :textarea-id textarea-id
-                 :autobuild (reagent/atom false)
-                 :width (reagent/atom 500)
+                 :control-state (reagent/atom {:autobuild false
+                                               :show-output true
+                                               :width 500})
                  :mount-pt mount-pt}
         stop-fn* (atom (constantly nil))
         stop! (fn [] (@stop-fn*))

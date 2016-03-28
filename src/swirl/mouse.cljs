@@ -4,10 +4,16 @@
 
 (defn start-listener
   [event f]
-  (.addEventListener js/window event f)
-  (fn stop-listener
-    []
-    (.removeEventListener js/window event f)))
+  (let [listener 
+        (fn [e]
+          (.preventDefault e)
+          (f e))]
+    (.addEventListener 
+     js/window event 
+     listener)
+    (fn stop-listener
+      []
+      (.removeEventListener js/window event listener))))
 
 (defn mouse-coords
   [e]

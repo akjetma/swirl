@@ -15,7 +15,7 @@
 
 (defn ui-mount
   []
-  (.getElementById js/document "mount"))
+  (.getElementById js/document "app-mount"))
 
 (defonce reload
   (do
