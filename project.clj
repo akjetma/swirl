@@ -11,7 +11,7 @@
                  [binaryage/devtools "0.5.2"]
                  [reagent "0.5.1"]
                  [com.taoensso/sente "1.8.1"]
-                 [akjetma/dmp-clj "0.1.2"]]
+                 [akjetma/dmp-clj "0.1.3"]]
   :plugins [[lein-cljsbuild "1.1.3"]]
   :clean-targets ^{:protect false} ["resources/public/js/swirl.js"
                                     "resources/public/js/out"
@@ -23,19 +23,20 @@
   :uberjar-name "swirl.jar"
   :cljsbuild {:builds 
               {:client {:source-paths ["src"]
-                        :compiler {:main "swirl.client"
-                                   :asset-path "js/out"
-                                   :output-dir "resources/public/js/out"
-                                   :output-to "resources/public/js/swirl.js"
-                                   :optimizations :none}}
+                        :compiler {:optimizations :simple
+                                   :output-to "resources/public/js/swirl.js"}}
                :sandbox {:source-paths ["src-sandbox"]
                          :compiler {:optimizations :simple
                                     :output-to "resources/public/js/sandbox.js"}}}}
   
   :profiles {:dev {:plugins [[lein-figwheel "0.5.0-1"]]
                    :figwheel {:css-dirs ["resources/public/css"]}
-                   :cljsbuild {:builds {:client {:figwheel {:on-jsload "swirl.client/reload"}}
-                                        :sandbox {:figwheel {:on-jsload "swirl.client/reload"}
+                   :cljsbuild {:builds {:client {:figwheel {:on-jsload "swirl.client/reload"}
+                                                 :compiler {:optimizations :none
+                                                            :main "swirl.client"
+                                                            :asset-path "js/out"
+                                                            :output-dir "resources/public/js/out"}}
+                                        :sandbox {:figwheel {:on-jsload "sandbox.core/reload"}
                                                   :compiler {:optimizations :none
                                                              :main "sandbox.core"
                                                              :asset-path "js/out_sb"
