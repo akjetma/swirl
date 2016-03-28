@@ -45,9 +45,11 @@
 (defn autobuild-toggle
   [{:keys [autobuild] :as context}]
   [:button#autobuild-toggle
-   {:on-click #(toggle-autobuild context)}
-   (if @autobuild "✓" "❑")
-   "autobuild"])
+   {:on-click #(toggle-autobuild context)}   
+   [:span "autobuild:"]
+   (if @autobuild
+     [:span.on "on"]
+     [:span.off "off"])])
 
 (defn eval-button
   [{:keys [text-ch text*]}]
