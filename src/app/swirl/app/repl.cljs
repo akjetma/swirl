@@ -1,31 +1,18 @@
-(ns swirl.repl
+(ns swirl.app.repl
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
-  (:require [cljs.core.async :as a]))
+  (:require [cljs.core.async :as a]
+            [swirl.common.post-message :as pm]))
 
-(defn post-message
-  [{:keys [other-window]} message]
-  (.postMessage other-window message "*"))
-
-(defn start-listener
-  [{:keys [result-in]}]
-  (let [receive-msg (fn [message]
-                      (a/put! result-in (.-data message)))
-        listener (.addEventListener 
-                  js/window "message"
-                  receive-msg)]
-    (fn stop-listener 
-      []
-      (.removeEventListener
-       js/window "message"
-       receive-msg))))
+;; (when (= id "result")
+;;   (a/put! result-in data))
 
 (defn start-comms
-  [{:keys [text-in result-in result-out] :as context}]
+  [{:keys [text-in result-in result-out other-window] :as context}]
   (let [stop-ch (a/chan)]
     (go-loop []
       (when-let [[msg port] (a/alts! [text-in stop-ch])]
         (when (= port text-in)
-          (post-message context msg)
+          (pm/post! other-window :text msg)
           (let [result (a/<! result-in)]
             (println result)
             (a/put! result-out result)
@@ -35,12 +22,13 @@
       (a/put! stop-ch :stop))))
 
 (defn start
-  [context]
-  (let [stop-listener (start-listener context)
+  [{:keys [result-in] :as context}]
+  (let [routes {:result result-in}
+        stop-router (pm/start-router! routes)
         stop-comms (start-comms context)]
     (fn stop
       []
-      (stop-listener)
+      (stop-router)
       (stop-comms))))
 
 (defn component

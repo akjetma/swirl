@@ -1,12 +1,12 @@
-(ns swirl.client
+(ns swirl.app.client
   (:require [taoensso.sente :as sente]
             [reagent.core :as reagent]
             [devtools.core :as devtools]
-            [swirl.editor :as editor]
-            [swirl.peer :as peer]
-            [swirl.repl :as repl]
-            [swirl.log :as log]
-            [swirl.ui :as ui]))
+            [swirl.app.editor :as editor]
+            [swirl.app.peer :as peer]
+            [swirl.app.repl :as repl]
+            [swirl.app.log :as log]
+            [swirl.app.ui :as ui]))
 
 (defn sandbox-window
   []

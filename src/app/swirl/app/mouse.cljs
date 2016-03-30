@@ -1,4 +1,4 @@
-(ns swirl.mouse
+(ns swirl.app.mouse
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.async :as a]))
 

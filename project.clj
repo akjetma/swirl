@@ -11,34 +11,42 @@
                  [binaryage/devtools "0.5.2"]
                  [reagent "0.5.1"]
                  [com.taoensso/sente "1.8.1"]
-                 [akjetma/dmp-clj "0.1.3"]]
+                 [akjetma/dmp-clj "0.1.3"]
+                 [replumb "0.2.1"]]
   :plugins [[lein-cljsbuild "1.1.3"]]
-  :clean-targets ^{:protect false} ["resources/public/js/swirl.js"
+  :clean-targets ^{:protect false} ["resources/public/js/app.js"
                                     "resources/public/js/out"
                                     "resources/public/js/sandbox.js"
                                     "resources/public/js/out_sb"
+                                    "resources/public/js/_.js"
+                                    "resources/public/js/repl_libs"
                                     "target"]
-  :source-paths ["src"]
-  :main swirl.server
+  :source-paths ["src/app"]
+  :main swirl.app.server
   :uberjar-name "swirl.jar"
   :cljsbuild {:builds 
-              {:client {:source-paths ["src"]
+              {:client {:source-paths ["src/app" "src/common"]
                         :compiler {:optimizations :simple
-                                   :output-to "resources/public/js/swirl.js"}}
-               :sandbox {:source-paths ["src-sandbox"]
+                                   :output-to "resources/public/js/app.js"}}
+               :sandbox {:source-paths ["src/sandbox" "src/common"]
                          :compiler {:optimizations :simple
-                                    :output-to "resources/public/js/sandbox.js"}}}}
+                                    :output-to "resources/public/js/sandbox.js"}}
+               :repl-libs {:source-paths ["src/sandbox" "src/common" "src/app"]
+                           :compiler {:optimizations :none
+                                      :output-to "resources/public/js/_.js"
+                                      :asset-path "js/repl_libs"
+                                      :output-dir "resources/public/js/repl_libs"}}}}
   
   :profiles {:dev {:plugins [[lein-figwheel "0.5.0-1"]]
                    :figwheel {:css-dirs ["resources/public/css"]}
-                   :cljsbuild {:builds {:client {:figwheel {:on-jsload "swirl.client/reload"}
+                   :cljsbuild {:builds {:client {:figwheel {:on-jsload "swirl.app.client/reload"}
                                                  :compiler {:optimizations :none
-                                                            :main "swirl.client"
+                                                            :main "swirl.app.client"
                                                             :asset-path "js/out"
                                                             :output-dir "resources/public/js/out"}}
-                                        :sandbox {:figwheel {:on-jsload "sandbox.core/reload"}
+                                        :sandbox {:figwheel {:on-jsload "swirl.sandbox.core/reload"}
                                                   :compiler {:optimizations :none
-                                                             :main "sandbox.core"
+                                                             :main "swirl.sandbox.core"
                                                              :asset-path "js/out_sb"
                                                              :output-dir "resources/public/js/out_sb"}}}}}
              :uberjar {:hooks [leiningen.cljsbuild]

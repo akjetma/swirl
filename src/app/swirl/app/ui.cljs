@@ -1,7 +1,7 @@
-(ns swirl.ui
+(ns swirl.app.ui
   (:require [cljs.core.async :as a]
             [reagent.core :as reagent]
-            [swirl.mouse :as mouse]))
+            [swirl.app.mouse :as mouse]))
 
 
 
@@ -76,7 +76,7 @@
   [:textarea
    {:id textarea-id
     :value @text*
-    :autocomplete false}])
+    :auto-complete false}])
 
 (defn log
   [{:keys [history* control-state]}]

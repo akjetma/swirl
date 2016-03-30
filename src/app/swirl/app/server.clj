@@ -1,4 +1,4 @@
-(ns swirl.server
+(ns swirl.app.server
   (:gen-class)
   (:require [org.httpkit.server :as http]
             [polaris.core :as polaris]
@@ -9,7 +9,7 @@
             [ring.util.response :refer [resource-response]]
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
-            [swirl.peer :as peer]))
+            [swirl.app.peer :as peer]))
 
 
 
@@ -32,7 +32,7 @@
 ;; -------------------------------------------------- http -----------
 
 (def http-routes
-  [["/" :app (fn [req] (resource-response "public/swirl.html"))]
+  [["/" :app (fn [req] (resource-response "public/app.html"))]
    ["/chsk" :socket {:GET ring-get-or-ws-handshake
                      :POST ring-ajax-post}]])
 

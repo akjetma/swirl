@@ -11,4 +11,8 @@ pom.xml.asc
 .hg/
 *.log
 /resources/public/js/out
-/resources/public/js/swirl.js
+/resources/public/js/out_sb
+/resources/public/js/repl_libs
+/resources/public/js/app.js
+/resources/public/js/sandbox.js
+/resources/public/js/_.js

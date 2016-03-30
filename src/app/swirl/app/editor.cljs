@@ -1,4 +1,4 @@
-(ns swirl.editor
+(ns swirl.app.editor
   (:require [reagent.core :as reagent]
             cljsjs.codemirror
             cljsjs.codemirror.mode.clojure))

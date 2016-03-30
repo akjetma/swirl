@@ -1,4 +1,4 @@
-(ns swirl.log
+(ns swirl.app.log
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.async :as a]
             [reagent.core :as reagent]))

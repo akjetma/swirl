@@ -1,4 +1,4 @@
-(ns swirl.peer
+(ns swirl.app.peer
   #?@(:cljs [(:refer-clojure :exclude [atom])
              (:require-macros [cljs.core.async.macros :refer [go go-loop]])])
   (:require [dmp-clj.core :as dmp]
