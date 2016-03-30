@@ -35,7 +35,6 @@
   (let [start-width (:width @control-state)]
     (fn resize
       [[x-offset _]]
-      (println x-offset)
       (swap! control-state assoc :width (- start-width x-offset)))))
 
 

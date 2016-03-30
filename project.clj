@@ -26,7 +26,7 @@
   :uberjar-name "swirl.jar"
   :cljsbuild {:builds 
               {:client {:source-paths ["src/app" "src/common"]
-                        :compiler {:optimizations :simple
+                        :compiler {:optimizations :advanced
                                    :output-to "resources/public/js/app.js"}}
                :sandbox {:source-paths ["src/sandbox" "src/common"]
                          :compiler {:optimizations :simple

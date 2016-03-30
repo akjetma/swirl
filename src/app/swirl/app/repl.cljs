@@ -14,7 +14,6 @@
         (when (= port text-in)
           (pm/post! other-window :text msg)
           (let [result (a/<! result-in)]
-            (println result)
             (a/put! result-out result)
             (recur)))))
     (fn stop-comms
