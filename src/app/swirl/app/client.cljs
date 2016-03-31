@@ -6,36 +6,50 @@
             [swirl.app.peer :as peer]
             [swirl.app.repl :as repl]
             [swirl.app.log :as log]
-            [swirl.app.ui :as ui]))
+            [swirl.app.ui :as ui]
+            [swirl.app.overlay :as overlay]))
+
+(defn get-id
+  [id]
+  (.getElementById js/document id))
 
 (defn sandbox-window
   []
   (.-contentWindow 
-   (.getElementById js/document "sandbox")))
+   (get-id "sandbox")))
 
-(defn ui-mount
+(defn app-mount
   []
-  (.getElementById js/document "app-mount"))
+  (get-id "app-mount"))
+
+(defn overlay-mount
+  []
+  (get-id "overlay-mount"))
+
+(defn websocket
+  []
+  (:ch-recv
+   (sente/make-channel-socket! 
+    "/chsk" {:type :auto :wrap-recv-evs? false})))
 
 (defonce reload
   (do
     (enable-console-print!)
-    (devtools/install!)
-    (let [{:keys [ch-recv]} (sente/make-channel-socket! 
-                             "/chsk" {:type :auto :wrap-recv-evs? false})
-          sandbox (sandbox-window)
-          mount (ui-mount)
-          history* (reagent/atom nil)
-          {:keys [start-peer! text*]} (peer/component ch-recv)
-          {:keys [start-ui! text-ch textarea-id]} (ui/component text* history* mount)
-          {:keys [start-repl! result-ch]} (repl/component text-ch sandbox)
+    (devtools/install! [:custom-formatters :sanity-hints])
+    (let [{:keys [start-overlay! set-ready!]} (overlay/component (overlay-mount))
+          {:keys [start-peer! text*]} (peer/component (websocket))
+          {:keys [start-ui! history* text-ch textarea-id]} (ui/component (app-mount) text*)
+          {:keys [start-repl! result-ch]} (repl/component text-ch (sandbox-window))
           {:keys [start-log!]} (log/component result-ch history*)
           {:keys [start-editor!]} (editor/component text* textarea-id)
           reload* (fn []
+                    (set-ready! false)
+                    (start-overlay!)
                     (start-ui!)
                     (start-peer!)
                     (start-log!)
                     (start-repl!)
-                    (start-editor!))]
+                    (start-editor!)
+                    (set-ready! true))]
       (reload*)
       reload*)))

@@ -8,7 +8,7 @@
                  [polaris "0.0.15"]
                  [ring "1.4.0"]
                  [ring-cors "0.1.7"]
-                 [binaryage/devtools "0.5.2"]
+                 [binaryage/devtools "0.6.0"]
                  [reagent "0.5.1"]
                  [com.taoensso/sente "1.8.1"]
                  [akjetma/dmp-clj "0.1.3"]

@@ -130,8 +130,9 @@
       (stop-watch context))))
 
 (defn component
-  [text* history* mount-pt]
+  [mount-pt text*]
   (let [text-ch (a/chan)
+        history* (reagent/atom nil)
         textarea-id "editor-mount"
         context {:text* text*
                  :history* history*
@@ -147,6 +148,7 @@
                  (stop!)
                  (reset! stop-fn* (start context)))]
     {:text-ch text-ch
+     :history* history*
      :textarea-id textarea-id
      :start-ui! start!
      :stop-ui! stop!}))

@@ -1,5 +1,6 @@
 (ns swirl.common.post-message
-  (:require [cljs.core.async :as a]))
+  (:require [cljs.core.async :as a]
+            [swirl.common.core :as common]))
 
 (defn post!
   [other-window id data]
@@ -25,14 +26,8 @@
         (a/put! route-ch data)
         (missing-route route message)))))
 
-(defn listen!
-  [evt-id evt-fn]
-  (.addEventListener js/window evt-id evt-fn)
-  (fn stop-listening! []
-    (.removeEventListener js/window evt-id evt-fn)))
-
 (defn start-router!
   [routes]
   (let [route-fn (router routes)
-        stop-router (listen! "message" route-fn)]
+        stop-router (common/listen! js/window "message" route-fn)]
     stop-router))

@@ -1,3 +1,30 @@
+/* ------- z-indices -------
+
+0 - .CodeMirror-linebackground
+
+1 - .cm-fat-cursor div.CodeMirror-cursors
+
+2 - .CodeMirror pre
+    .CodeMirror-linewidget
+
+3 - .CodeMirror-gutters
+    div.CodeMirror-cursors
+
+4 - .CodeMirror-gutter-wrapper
+    .CodeMirror-gutter-background
+    .CodeMirror-gutter-elt
+    
+6 - .CodeMirror-vscrollbar 
+    .CodeMirror-hscrollbar 
+    .CodeMirror-scrollbar-filler 
+    .CodeMirror-gutter-filler
+
+7 - #controls
+
+8 - #overlay-mount 
+
+---------------------------- */
+
 html, body, .full-height, .CodeMirror {
     height: 100%;
 }
@@ -8,8 +35,6 @@ body, .CodeMirror {
 
 body {
     margin: 0;
-    display: flex;
-    justify-content: space-around;
 }
 
 button {
@@ -30,6 +55,24 @@ button:focus {
 
 /* ------------------------------------------------------------------------------- */
 
+#container {
+    display: flex;
+    justify-content: space-around;
+}
+
+#overlay-mount {
+    position: absolute;
+    z-index: 8;
+}
+
+#overlay {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255,255,255,0.8);
+}
 
 #sandbox {
     flex-grow: 1;
@@ -64,7 +107,7 @@ button:focus {
 
 
 #controls {
-    z-index: 4;
+    z-index: 7;
     position: fixed;
     bottom: 0;
     right: 0;

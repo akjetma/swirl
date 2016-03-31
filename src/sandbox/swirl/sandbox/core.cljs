@@ -74,8 +74,7 @@
 
 (defonce reload
   (do
-    (devtools/enable-feature! :sanity-hints :dirac)
-    (devtools/install!)    
+    (devtools/install! [:custom-formatters :sanity-hints])
     (enable-console-print!)
     (set! *print-fn* 
           (fn [& args] 
