@@ -5,7 +5,11 @@
 
 (defn text->editor
   [{:keys [cm]} text]
-  (.setValue cm text))
+  (let [cursor (.getCursor cm)
+        scroll (.getScrollInfo cm)]
+    (.setValue cm text)
+    (.scrollTo cm (.-left scroll) (.-top scroll))
+    (.setCursor cm cursor)))
 
 (defn editor->text*
   [{:keys [text* cm]}]
