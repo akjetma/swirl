@@ -21,17 +21,17 @@
                                     "resources/public/js/_.js"
                                     "resources/public/js/repl_libs"
                                     "target"]
-  :source-paths ["src/app"]
+  :source-paths ["src-app"]
   :main swirl.app.server
   :uberjar-name "swirl.jar"
   :cljsbuild {:builds 
-              {:client {:source-paths ["src/app" "src/common"]
+              {:client {:source-paths ["src-app" "src-common"]
                         :compiler {:optimizations :advanced
                                    :output-to "resources/public/js/app.js"}}
-               :sandbox {:source-paths ["src/sandbox" "src/common"]
+               :sandbox {:source-paths ["src-sandbox" "src-common"]
                          :compiler {:optimizations :simple
                                     :output-to "resources/public/js/sandbox.js"}}
-               :repl-libs {:source-paths ["src/sandbox" "src/common" "src/app"]
+               :repl-libs {:source-paths ["src-sandbox" "src-common" "src-app"]
                            :compiler {:optimizations :none
                                       :output-to "resources/public/js/_.js"
                                       :asset-path "js/repl_libs"
