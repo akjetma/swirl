@@ -6,7 +6,7 @@
 (defn text->editor
   [{:keys [cm]} text]
   (let [cursor (.getCursor cm)
-        scroll (.getScrollInfo cm)]
+        scroll (.call (aget cm "getScrollInfo") cm)]
     (.setValue cm text)
     (.scrollTo cm (.-left scroll) (.-top scroll))
     (.setCursor cm cursor)))
