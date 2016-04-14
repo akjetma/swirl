@@ -95,11 +95,24 @@ button:focus {
 #log {
     margin-right: 10px;
     padding: 10px;
+    overflow: scroll;
+    word-wrap: break-word;
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.6);
+    transition: max-height 0.4s;
     color: #F77669;
     font-size: 0.7em;
+    cursor: pointer;
     pointer-events: auto;
+}
+
+#log.small {
+    max-height: 40px;
+    transition: max-height 0.2s;
+}
+
+#log.large {
+    max-height: 90vh;
 }
 
 

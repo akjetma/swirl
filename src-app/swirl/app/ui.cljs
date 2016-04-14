@@ -30,6 +30,10 @@
     (stop-watch context)
     (start-watch context)))
 
+(defn toggle-output-size
+  [control-state]
+  (swap! control-state update :expand-output not))
+
 (defn resize-handler
   [{:keys [control-state]}]
   (let [start-width (:width @control-state)]
@@ -79,9 +83,12 @@
 
 (defn log
   [{:keys [history* control-state]}]
-  [:div#log 
-   (when (:show-output @control-state)
-     @history*)])
+  (let [{:keys [show-output expand-output]} @control-state]
+    [:div#log
+     {:on-click #(toggle-output-size control-state)
+      :class (if expand-output "large" "small")}
+     (when show-output
+       @history*)]))
 
 (defn controls
   [context]
@@ -140,6 +147,7 @@
                  :textarea-id textarea-id
                  :control-state (reagent/atom {:autobuild false
                                                :show-output true
+                                               :expand-output false
                                                :width 500})
                  :mount-pt mount-pt}
         stop-fn* (atom (constantly nil))
