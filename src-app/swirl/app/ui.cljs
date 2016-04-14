@@ -64,15 +64,15 @@
 (defn output-toggle
   [{:keys [control-state]}]
   [toggle-btn
-   "show output"
+   "show eval result"
    (:show-output @control-state)
    #(swap! control-state update :show-output not)])
 
 (defn eval-button
   [{:keys [text-ch text*]}]
-  [:button
+  [:button.eval-btn
    {:on-click #(trigger-eval text-ch @text*)}
-   "eval"])
+   "eval!"])
 
 (defn textarea
   [{:keys [textarea-id text*]}]

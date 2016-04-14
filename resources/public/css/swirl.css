@@ -38,10 +38,19 @@ body {
 }
 
 button {
-    border: none;
+    transition: border-width, 0.05s;
+    border: 1px solid rgba(0,0,0,0.5);
+    border-bottom: 4px solid rgba(0,0,0,0.75);
+    border-right: 4px solid rgba(0,0,0,0.25);
     padding: 0;
     cursor: pointer;
     font: inherit;
+}
+
+button:active {
+    border: 1px solid rgba(0,0,0,0.5);
+    border-top: 4px solid rgba(0,0,0,0.75);
+    border-left: 4px solid rgba(0,0,0,0.25);
 }
 
 button:focus {
@@ -95,24 +104,28 @@ button:focus {
 #log {
     margin-right: 10px;
     padding: 10px;
+    border: 1px solid;
     overflow: scroll;
     word-wrap: break-word;
     border-radius: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    transition: max-height 0.4s;
-    color: #F77669;
+    transition: background-color 0.4s, max-height 0.4s;
     font-size: 0.7em;
     cursor: pointer;
     pointer-events: auto;
 }
 
 #log.small {
-    max-height: 40px;
-    transition: max-height 0.2s;
+    max-height: 15px;
+    background-color: #fff;
+    color: #000;
+    border-color: #000;
 }
 
 #log.large {
     max-height: 90vh;
+    background-color: #000;
+    color: #fff;
+    border-color: #fff;
 }
 
 
@@ -139,6 +152,10 @@ button:focus {
     padding: 5px 7px;
     border-radius: 5px;
     pointer-events: auto;
+}
+
+#controls .eval-btn {
+    background-color: #E78DE8;
 }
 
 .control-group { 
