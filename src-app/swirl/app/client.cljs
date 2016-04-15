@@ -1,4 +1,5 @@
 (ns swirl.app.client
+  (:require-macros [swirl.common.env :refer [env]])
   (:require [taoensso.sente :as sente]
             [reagent.core :as reagent]
             [devtools.core :as devtools]
@@ -35,7 +36,8 @@
 (defonce reload
   (do
     (enable-console-print!)
-    (devtools/install! [:custom-formatters :sanity-hints])
+    (when (= (env :build) "dev")
+      (devtools/install! [:custom-formatters :sanity-hints]))
     (let [{:keys [start-overlay! set-ready!]} (overlay/component (overlay-mount))
           {:keys [start-peer! text*]} (peer/component (websocket))
           {:keys [start-ui! history* text-ch textarea-id]} (ui/component (app-mount) text*)

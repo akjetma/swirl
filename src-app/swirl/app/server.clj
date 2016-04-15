@@ -9,7 +9,8 @@
             [ring.util.response :refer [resource-response]]
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
-            [swirl.app.peer :as peer]))
+            [swirl.app.peer :as peer]
+            [environ.core :as environ]))
 
 
 
@@ -71,5 +72,6 @@
 
 (defn -main  
   []
+  (println "starting" (environ/env :build) "server")
   (let [port (Integer/parseInt (get (System/getenv) "PORT" "5000"))]
     (start! port)))

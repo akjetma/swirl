@@ -1,5 +1,6 @@
 (ns swirl.sandbox.core
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
+                   [swirl.common.env :refer [env]])
   (:require [cljs.core.async :as a]
             [replumb.core :as replumb]
             [devtools.core :as devtools]
@@ -74,8 +75,9 @@
 
 (defonce reload
   (do
-    (devtools/install! [:custom-formatters :sanity-hints])
     (enable-console-print!)
+    (when (= (env :build) "dev")
+      (devtools/install! [:custom-formatters :sanity-hints]))
     (set! *print-fn* 
           (fn [& args] 
             (.apply js/console.debug 

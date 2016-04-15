@@ -12,8 +12,10 @@
                  [reagent "0.5.1"]
                  [com.taoensso/sente "1.8.1"]
                  [akjetma/dmp-clj "0.1.3"]
-                 [replumb "0.2.1"]]
-  :plugins [[lein-cljsbuild "1.1.3"]]
+                 [replumb "0.2.1"]
+                 [environ "1.0.2"]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-environ "1.0.2"]]
   :clean-targets ^{:protect false} ["resources/public/js/app.js"
                                     "resources/public/js/out"
                                     "resources/public/js/sandbox.js"
@@ -24,6 +26,7 @@
   :source-paths ["src-app"]
   :main swirl.app.server
   :uberjar-name "swirl.jar"
+  :env {:build "prod"}
   :cljsbuild {:builds 
               {:client {:source-paths ["src-app" "src-common"]
                         :compiler {:optimizations :advanced
@@ -37,7 +40,8 @@
                                       :asset-path "js/repl_libs"
                                       :output-dir "resources/public/js/repl_libs"}}}}
   
-  :profiles {:dev {:plugins [[lein-figwheel "0.5.0-1"]]
+  :profiles {:dev {:env {:build "dev"}
+                   :plugins [[lein-figwheel "0.5.0-1"]]
                    :figwheel {:css-dirs ["resources/public/css"]}
                    :cljsbuild {:builds {:client {:figwheel {:on-jsload "swirl.app.client/reload"}
                                                  :compiler {:optimizations :none
