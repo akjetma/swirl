@@ -1,7 +1,9 @@
 (ns swirl.app.editor
   (:require [reagent.core :as reagent]
             cljsjs.codemirror
-            cljsjs.codemirror.mode.clojure))
+            cljsjs.codemirror.mode.clojure
+            cljsjs.codemirror.addon.edit.matchbrackets
+            cljsjs.codemirror.addon.comment.comment))
 
 (defn text->editor
   [{:keys [cm]} text]
@@ -42,12 +44,19 @@
 
 (defn attach
   [context]
-  (.fromTextArea 
-   js/CodeMirror (textarea context)
-   #js {:mode "clojure"
-        :theme "material"
-        :lineNumbers true
-        :lineWrapping true}))
+  (let [cm (.fromTextArea 
+            js/CodeMirror (textarea context)
+            #js {:mode "clojure"
+                 :theme "material"
+                 :lineNumbers true
+                 :lineWrapping true
+                 :matchBrackets true
+                 })]
+    (.setOption cm "extraKeys"
+                #js {"Tab" "indentAuto"
+                     "Shift-Tab" false
+                     "Ctrl-;" "toggleComment"})
+    cm))
  
 (defn start
   [context]

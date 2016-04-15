@@ -14,7 +14,7 @@
 (defn stop-watch
   [{:keys [text* control-state]}]
   (remove-watch text* :put-text)
-  (swap! control-state assoc :autobuild false))
+  (swap! control-state assoc :autoeval false))
 
 (defn start-watch
   [{:keys [text* text-ch control-state]}]
@@ -22,11 +22,11 @@
    text* :put-text
    (fn put-text [_ _ _ text]
      (trigger-eval text-ch text)))
-  (swap! control-state assoc :autobuild true))
+  (swap! control-state assoc :autoeval true))
 
-(defn toggle-autobuild
+(defn toggle-autoeval
   [{:keys [control-state] :as context}]
-  (if (:autobuild @control-state)
+  (if (:autoeval @control-state)
     (stop-watch context)
     (start-watch context)))
 
@@ -54,19 +54,12 @@
      [:span.on "on"]
      [:span.off "off"])])
 
-(defn autobuild-toggle
+(defn autoeval-toggle
   [{:keys [control-state] :as context}]
   [toggle-btn
-   "autobuild"
-   (:autobuild @control-state)
-   #(toggle-autobuild context)])
-
-(defn output-toggle
-  [{:keys [control-state]}]
-  [toggle-btn
-   "show eval result"
-   (:show-output @control-state)
-   #(swap! control-state update :show-output not)])
+   "autoeval"
+   (:autoeval @control-state)
+   #(toggle-autoeval context)])
 
 (defn eval-button
   [{:keys [text-ch text*]}]
@@ -83,20 +76,18 @@
 
 (defn log
   [{:keys [history* control-state]}]
-  (let [{:keys [show-output expand-output]} @control-state]
+  (let [{:keys [expand-output]} @control-state]
     [:div#log
      {:on-click #(toggle-output-size control-state)
       :class (if expand-output "large" "small")}
-     (when show-output
-       [:code
-        [:pre
-         @history*]])]))
+     [:code
+      [:pre
+       @history*]]]))
 
 (defn controls
   [context]
   [:div.control-group
-   [output-toggle context]
-   [autobuild-toggle context]
+   [autoeval-toggle context]
    [eval-button context]])
 
 (defn app
@@ -147,8 +138,7 @@
                  :history* history*
                  :text-ch text-ch
                  :textarea-id textarea-id
-                 :control-state (reagent/atom {:autobuild false
-                                               :show-output true
+                 :control-state (reagent/atom {:autoeval false
                                                :expand-output false
                                                :width 500})
                  :mount-pt mount-pt}

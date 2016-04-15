@@ -29,11 +29,16 @@ html, body, .full-height, .CodeMirror {
     height: 100%;
 }
 
+.almost-full {
+    height: calc(100% - 55px);
+}
+
 body, .CodeMirror {
     font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 }
 
 body {
+    background-color: #263238;
     margin: 0;
 }
 
@@ -67,6 +72,7 @@ button:focus {
 #container {
     display: flex;
     justify-content: space-around;
+
 }
 
 #overlay-mount {
@@ -85,6 +91,7 @@ button:focus {
 
 #sandbox {
     flex-grow: 1;
+    background-color: #fff;
 }
 
 #app-container {
@@ -108,14 +115,18 @@ button:focus {
     overflow: scroll;
     word-wrap: break-word;
     border-radius: 10px;
+    min-height: 15px;
     transition: background-color 0.4s, max-height 0.4s;
     font-size: 0.7em;
     cursor: pointer;
     pointer-events: auto;
+    flex-grow: 1;
 }
 
 #log pre {
     margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 #log.small {
