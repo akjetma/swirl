@@ -114,6 +114,10 @@ button:focus {
     pointer-events: auto;
 }
 
+#log pre {
+    margin: 0;
+}
+
 #log.small {
     max-height: 15px;
     background-color: #fff;

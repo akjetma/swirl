@@ -88,7 +88,9 @@
      {:on-click #(toggle-output-size control-state)
       :class (if expand-output "large" "small")}
      (when show-output
-       @history*)]))
+       [:code
+        [:pre
+         @history*]])]))
 
 (defn controls
   [context]
