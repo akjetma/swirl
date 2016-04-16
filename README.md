@@ -1,7 +1,5 @@
 # swirl
 
-## What
-
 ![Demonstration](http://i.imgur.com/67xA6PI.gif) 
 
 ## Why
