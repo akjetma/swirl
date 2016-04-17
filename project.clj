@@ -4,7 +4,7 @@
                  [org.clojure/clojurescript "1.8.34"]
                  [org.clojure/core.async "0.2.374"]
                  [cljsjs/codemirror "5.11.0-1"]
-                 [http-kit "2.1.18"]
+                 [http-kit "2.2.0-alpha1"]
                  [polaris "0.0.15"]
                  [ring "1.4.0"]
                  [ring-cors "0.1.7"]
