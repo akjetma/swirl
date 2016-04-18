@@ -1,6 +1,6 @@
 # swirl
 
-![Demonstration](http://i.imgur.com/67xA6PI.gif) 
+![Demonstration](http://i.imgur.com/67xA6PI.gif)
 
 ## Why
 
@@ -35,8 +35,14 @@ If you're going to use this for an interview, definitely run your own server and
 
 ### Heroku Instructions
 
+Click this button:
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
+For manual deployment:
+
 1. Clone this repo
-2. `heroku apps:create` in the project root
+2. `heroku create` in the project root
 3. `git push heroku master`
 
 ### Otherwise
@@ -53,6 +59,6 @@ If you're going to use this for an interview, definitely run your own server and
 
 1. `lein cljsbuild once repl-libs`
 2. `rlwrap lein figwheel sandbox client`
-3. `lein repl` 
+3. `lein repl`
 
 Starts on port specified by PORT environment variable, or 5000 by default.
