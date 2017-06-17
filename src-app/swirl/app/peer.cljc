@@ -101,7 +101,8 @@
 
 (defn component
   [chsk-recv]
-  (let [text* (atom "")
+  (let [text* (atom #?(:clj (slurp "resources/intro.cljs")
+                       :cljs ""))
         context
         {:peer-ev-id :swirl/rotate
          :chsk-recv chsk-recv

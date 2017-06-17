@@ -141,7 +141,7 @@
                  :textarea-id textarea-id
                  :control-state (reagent/atom {:autoeval true
                                                :expand-output false
-                                               :width 500})
+                                               :width 600})
                  :mount-pt mount-pt}
         stop-fn* (atom (constantly nil))
         stop! (fn [] (@stop-fn*))
