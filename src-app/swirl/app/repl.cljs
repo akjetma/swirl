@@ -14,8 +14,10 @@
         (when (= port text-in)
           (pm/post! other-window :text msg)
           (let [[result port] (a/alts! [result-in (a/timeout 1000)])]
-            (when (= port result-in)
-              (a/put! result-out result))
+            (a/put! result-out
+                    (if (= port result-in)
+                      result
+                      "Evaluation Timed Out."))
             (recur)))))
     (fn stop-comms
       []
