@@ -139,7 +139,7 @@
                  :history* history*
                  :text-ch text-ch
                  :textarea-id textarea-id
-                 :control-state (reagent/atom {:autoeval true
+                 :control-state (reagent/atom {:autoeval false
                                                :expand-output false
                                                :width 600})
                  :mount-pt mount-pt}
