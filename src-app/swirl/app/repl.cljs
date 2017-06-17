@@ -13,8 +13,9 @@
       (when-let [[msg port] (a/alts! [text-in stop-ch])]
         (when (= port text-in)
           (pm/post! other-window :text msg)
-          (let [result (a/<! result-in)]
-            (a/put! result-out result)
+          (let [[result port] (a/alts! [result-in (a/timeout 1000)])]
+            (when (= port result-in)
+              (a/put! result-out result))
             (recur)))))
     (fn stop-comms
       []
