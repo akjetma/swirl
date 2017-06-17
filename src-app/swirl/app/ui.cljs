@@ -124,6 +124,7 @@
 (defn start
   [context]
   (let [stop-render (start-render context)]
+    (start-watch context)
     (fn stop
       []
       (stop-render)
@@ -138,7 +139,7 @@
                  :history* history*
                  :text-ch text-ch
                  :textarea-id textarea-id
-                 :control-state (reagent/atom {:autoeval false
+                 :control-state (reagent/atom {:autoeval true
                                                :expand-output false
                                                :width 500})
                  :mount-pt mount-pt}
